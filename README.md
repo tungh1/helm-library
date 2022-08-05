@@ -6,6 +6,6 @@ staging project contains the Helm application chart
 
 ## Commands
 helm package libchart/    
-helm dependency update development/
-helm dependency update staging/
+helm dependency update development/ </br>
+helm dependency update staging/ </br>
 helm template nginx ./development -f development/application/nginx.yaml
