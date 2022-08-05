@@ -1,4 +1,4 @@
-# helm-library-demo
+# helm-library
 
 libchart project contains the Helm library chart </br>    
 development project contains the Helm application chart </br>
