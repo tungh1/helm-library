@@ -1,0 +1,52 @@
+{{ define "libchart.deployment" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "libchart.fullname" . }} 
+  namespace: {{ default .Chart.Name }} 
+  label1: demo
+spec:  
+  selector:
+    matchLabels:
+      app: {{ include "libchart.serviceAccountName" . }}
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: {{ include "libchart.serviceAccountName" . }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ include "libchart.serviceAccountName" . }}
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+        {{- with .Values.command }}
+          command: {{ . }}
+        {{- end }}
+        {{- with .Values.service }}
+          ports:
+          - containerPort: {{ .port}}
+        {{- end }}        
+        {{- with .Values.volumeMounts }}
+          volumeMounts:
+          {{- range. }}
+          - name: {{ .name }}
+            mountPath: {{ .mountPath }}
+            subPath: {{ .subPath }}
+          {{- end }}
+        {{- end}}
+    {{- with .Values.volumes }}
+      volumes:
+          - name: {{ .name }}
+            persistentVolumeClaim:
+              claimName: {{ .persistentVolumeClaim.claimName }}
+    {{- end }}
+{{- end }}
